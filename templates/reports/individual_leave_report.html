@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Individual Leave Report</title>
+
+<style>
+/* ================= SCREEN BACKGROUND ================= */
+body {
+  margin: 0;
+  padding: 0;
+  background: linear-gradient(135deg, #1e3c72, #2a5298);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* ================= A4 PAGE ================= */
+.page {
+  position: relative;
+  width: 210mm;
+  min-height: 297mm;
+  margin: 20px auto;
+
+  /* Green–Blue Gradient */
+  background: linear-gradient(135deg, #f7feff 0%, #eefdfcf6 100%);
+
+  padding: 15mm;
+  box-sizing: border-box;
+  box-shadow: 0 0 20px rgba(0,0,0,0.25);
+  overflow: hidden;
+}
+.logo {
+  background: transparent;
+  object-fit: contain;
+  display: block;
+}
+
+/* ================= WATERMARK ================= */
+.watermark {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 70%;
+  transform: translate(-50%, -50%);
+  opacity: 0.12;              /* watermark strength */
+  z-index: 0;
+}
+
+.watermark img {
+  width: 100%;
+}
+
+/* ================= CONTENT ABOVE WATERMARK ================= */
+.content {
+  position: relative;
+  z-index: 1;
+}
+
+/* ================= PDF ================= */
+@page {
+  size: A4;
+  margin: 15mm;
+}
+
+@media print {
+  body {
+    background: none;
+  }
+  .page {
+    box-shadow: none;
+    margin: 0;
+  }
+}
+
+/* ================= COMMON STYLES ================= */
+h2 {
+  text-align: center;
+  margin: 5mm 0 2mm;
+  letter-spacing: 1px;
+}
+
+.sub-title {
+  text-align: center;
+  font-size: 12px;
+  margin-bottom: 10mm;
+}
+
+.section-title {
+  background: #3f6ee8;
+  color: white;
+  padding: 6px;
+  font-size: 13px;
+  text-align: center;
+  margin: 10mm 0 5mm;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+th, td {
+  border: 1px solid #2f5fff;
+  padding: 6px;
+}
+
+th {
+  background: #eaf0ff;
+  text-align: left;
+}
+
+.center {
+  text-align: center;
+}
+
+.summary-container {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.summary-box {
+  width: 30%;
+  border: 2px solid #2f5fff;
+  border-radius: 10px;
+  padding: 10px;
+  text-align: center;
+}
+
+.summary-used {
+  border-color: #ff4b4b;
+}
+
+.summary-balance {
+  border-color: #1bc95a;
+}
+/* ================= REPORT DETAILS CARDS ================= */
+.details-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.details-card {
+  border: 1px solid #2f5fff;
+  border-radius: 8px;
+  padding: 8px;
+  background: #f9fbff;
+  font-size: 12px;
+}
+
+.details-card h6 {
+  margin: 0 0 6px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #2f5fff;
+  color: #2f5fff;
+  font-size: 13px;
+  text-align: center;
+}
+
+.details-card ul {
+  margin: 0;
+  padding-left: 16px;
+}
+
+.details-card li {
+  margin-bottom: 4px;
+  line-height: 1.4;
+}
+
+/* Print-safe */
+@media print {
+  .details-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+.details-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.details-card {
+  border: 1px solid #2f5fff;
+  border-radius: 8px;
+  padding: 8px;
+  background: #f9fbff;
+  font-size: 12px;
+}
+
+.details-card h6 {
+  margin: 0 0 6px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #2f5fff;
+  color: #2f5fff;
+  font-size: 13px;
+  text-align: center;
+}
+
+.details-card ul {
+  margin: 0;
+  padding-left: 16px;
+}
+
+.details-card li {
+  margin-bottom: 4px;
+  line-height: 1.4;
+}
+
+/* MC visual override */
+.details-card.mc {
+  border-color: #ff4b4b;
+  background: #fff7f7;
+}
+
+.details-card.mc h6 {
+  color: #ff4b4b;
+  border-bottom-color: #ff4b4b;
+}
+
+@media print {
+  .details-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.footer {
+  text-align: center;
+  font-size: 11px;
+  margin-top: 15mm;
+  font-style: italic;
+}
+/* ================= ACTION BUTTONS ================= */
+.action-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 20mm;
+}
+
+/* Hide buttons in print / PDF */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="page">
+
+  <!-- ============ WATERMARK LOGO ============ -->
+  <div class="watermark">
+    <img src="{{ url_for('static', filename='logoJ.png') }}" alt="Watermark Logo">
+  </div>
+
+  <!-- ============ CONTENT ============ -->
+  <div class="content">
+
+    <!-- HEADER -->
+    <div style="
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    ">
+      <img src="{{ url_for('static', filename='logo jetamaa.jpg') }}"
+          alt="Logo"
+          class="logo"
+          style="
+            height: 65px;
+          ">
+
+      <div style="
+        font-size: 11px;
+        color: #555;
+        text-align: right;
+      ">
+        <strong>Printed Date:</strong><br>
+        {{ printed_date }}
+      </div>
+    </div>
+
+    <h2>LEAVE FORM REPORT</h2>
+    <div class="sub-title">
+      INDIVIDUAL REPORT – {{ year }}
+    </div>
+
+    <!-- EMPLOYEE INFO -->
+    <table>
+      <tr>
+        <th style="width:20%;">Name</th>
+        <td style="width:40%;">{{ employee.name }}</td>
+        <th style="width:20%;">Position</th>
+        <td style="width:20%;">{{ employee.position }}</td>
+      </tr>
+      <tr>
+        <th>Department</th>
+        <td colspan="3">{{ department }}</td>
+      </tr>
+    </table>
+
+    <!-- SUMMARY -->
+    <div class="section-title">EMPLOYEE LEAVE SUMMARY</div>
+
+    <div class="summary-container">
+      <div class="summary-box">
+        <b>ENTITLED</b>
+        <div style="font-size:24px;">{{ summary.entitled }}</div>
+      </div>
+
+      <div class="summary-box summary-used">
+        <b>USED</b>
+        <div style="font-size:24px; color:#ff4b4b;">{{ summary.used }}</div>
+      </div>
+
+      <div class="summary-box summary-balance">
+        <b>BALANCE</b>
+        <div style="font-size:24px; color:#1bc95a;">{{ summary.balance }}</div>
+      </div>
+    </div>
+
+    <!-- FULL REPORT -->
+    <div class="section-title">EMPLOYEE FULL REPORT</div>
+
+    {% set months = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'] %}
+    {% set month_map = {
+      'JAN':'01','FEB':'02','MAR':'03','APR':'04','MAY':'05','JUN':'06',
+      'JUL':'07','AUG':'08','SEP':'09','OCT':'10','NOV':'11','DEC':'12'
+    } %}
+
+    {# ===== UNIQUE LEAVE TYPES FROM APPROVED DATA ===== #}
+    {% set leave_types = [] %}
+    {% for l in approved_leaves %}
+      {% if l.leave_type not in leave_types %}
+        {% set _ = leave_types.append(l.leave_type) %}
+      {% endif %}
+    {% endfor %}
+    {% if mc_records and 'MC' not in leave_types %}
+      {% set _ = leave_types.append('MC') %}
+    {% endif %}
+
+    <table>
+      <thead>
+        <tr class="center">
+          <th>Leave Type</th>
+          {% for m in months %}<th>{{ m }}</th>{% endfor %}
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for lt in leave_types %}
+          {% set row = namespace(total=0) %}
+          <tr class="center">
+
+            <td style="text-align:left;">
+              {% if lt == 'MC' %}
+                <span style="color:#ff4b4b;">MC (Not Deducted)</span>
+              {% else %}
+                {{ lt }}
+              {% endif %}
+            </td>
+
+            {% for m in months %}
+              {% set val = monthly[m].get(lt, 0) %}
+              <td>{{ val }}</td>
+
+              {% if lt != 'MC' %}
+                {% set row.total = row.total + val %}
+              {% endif %}
+            {% endfor %}
+
+            <td><b>{{ row.total }}</b></td>
+          </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- DETAILS -->
+    <!-- ================= REPORT DETAILS ================= -->
+    <div class="section-title">REPORT DETAILS</div>
+
+    <div class="details-grid">
+
+    {% set month_map = {
+      'JAN':'01','FEB':'02','MAR':'03','APR':'04','MAY':'05','JUN':'06',
+      'JUL':'07','AUG':'08','SEP':'09','OCT':'10','NOV':'11','DEC':'12'
+    } %}
+
+    {% for m in months %}
+      {% set ns = namespace(show=false) %}
+
+      {# detect month with data #}
+      {% for l in approved_leaves %}
+        {% if l.start_date
+              and (l.start_date[5:7] == month_map[m]
+                  or l.end_date[5:7] == month_map[m]) %}
+          {% set ns.show = true %}
+        {% endif %}
+      {% endfor %}
+
+      {% if ns.show %}
+        <div class="details-card">
+          <h6>{{ m }}</h6>
+          <ul>
+            {% for l in approved_leaves %}
+              {% if l.start_date
+                    and (l.start_date[5:7] == month_map[m]
+                        or l.end_date[5:7] == month_map[m]) %}
+                <li>
+                  <b>{{ l.leave_type }}</b><br>
+                  <small>
+                    {{ l.start_date }} → {{ l.end_date }}
+                    ({{ l.total_days if l.total_days is not none else 0 }} day(s))
+                  </small>
+                </li>
+              {% endif %}
+            {% endfor %}
+          </ul>
+        </div>
+      {% endif %}
+    {% endfor %}
+
+    </div>
+
+    </tbody>
+  </table>
+    <!-- ================= MC SUMMARY TABLE ================= -->
+    <!-- ================= MC DETAILS ================= -->
+    <div class="section-title">Medical Certificate (MC)</div>
+
+    <div class="details-grid">
+
+    {% set month_map = {
+      'JAN':'01','FEB':'02','MAR':'03','APR':'04','MAY':'05','JUN':'06',
+      'JUL':'07','AUG':'08','SEP':'09','OCT':'10','NOV':'11','DEC':'12'
+    } %}
+
+    {% for m in months %}
+      {% set ns = namespace(show=false) %}
+
+      {# detect month with MC #}
+      {% for mc in mc_records %}
+        {% if mc.start_date
+              and (mc.start_date[5:7] == month_map[m]
+                  or mc.end_date[5:7] == month_map[m]) %}
+          {% set ns.show = true %}
+        {% endif %}
+      {% endfor %}
+
+      {% if ns.show %}
+        <div class="details-card mc">
+          <h6>{{ m }}</h6>
+          <ul>
+            {% for mc in mc_records %}
+              {% if mc.start_date
+                    and (mc.start_date[5:7] == month_map[m]
+                        or mc.end_date[5:7] == month_map[m]) %}
+                <li>
+                  <b>MC</b><br>
+                  <small>{{ mc.start_date }} → {{ mc.end_date }}</small>
+                </li>
+              {% endif %}
+            {% endfor %}
+          </ul>
+        </div>
+      {% endif %}
+    {% endfor %}
+
+    </div>
+
+      </tbody>
+    </table>
+
+    <div class="footer">
+        Authorised by Jetama Sdn Bhd © {{ current_year }}
+    </div>
+
+    <!-- ================= ACTION BUTTONS ================= -->
+    <div class="action-buttons no-print">
+      <button onclick="goBack()" style="
+        padding:10px 18px;
+        border:none;
+        border-radius:6px;
+        background:#6c757d;
+        color:white;
+        cursor:pointer;
+        font-size:14px;
+      ">
+        ← Back
+      </button>
+
+      <button onclick="downloadPDF()" style="
+        padding:10px 18px;
+        border:none;
+        border-radius:6px;
+        background:#2f5fff;
+        color:white;
+        cursor:pointer;
+        font-size:14px;
+      ">
+        ⬇ Download
+      </button>
+
+    </div>
+
+  </div>
+</div>
+
+<script>
+function goBack() {
+  window.history.back();
+}
+
+function downloadPDF() {
+
+  // ===== EMPLOYEE NAME (uppercase, no space) =====
+  let name = "{{ employee.name | upper | replace(' ', '') }}";
+
+  // ===== CURRENT DATE INFO =====
+  const now = new Date();
+
+  const months = ["JAN","FEB","MAR","APR","MAY","JUN",
+                  "JUL","AUG","SEP","OCT","NOV","DEC"];
+
+  const month = months[now.getMonth()];
+  const year  = now.getFullYear();
+
+  // ===== DOWNLOAD COUNTER (PER SESSION) =====
+  let count = sessionStorage.getItem("download_count");
+  count = count ? parseInt(count) + 1 : 1;
+  sessionStorage.setItem("download_count", count);
+
+  const countStr = String(count).padStart(2, '0');
+
+  // ===== FINAL FILE NAME =====
+  const filename = `${name}_${month}_${year}_${countStr}.pdf`;
+
+  // ===== TARGET ELEMENT =====
+  const element = document.querySelector(".page");
+
+  // ===== PDF OPTIONS =====
+  const opt = {
+    margin:       0,
+    filename:     filename,
+    image:        { type: 'jpeg', quality: 0.98 },
+    html2canvas:  {
+      scale: 2,
+      useCORS: true
+    },
+    jsPDF: {
+      unit: 'mm',
+      format: 'a4',
+      orientation: 'portrait'
+    }
+  };
+
+  html2pdf().set(opt).from(element).save();
+}
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+</body>
+</html>

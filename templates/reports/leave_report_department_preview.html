@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Employee Leave Report</title>
+
+<style>
+@page { size: A4 landscape; margin: 12mm; }
+
+body {
+  margin: 0;
+  background: #eef1f7;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.action-bar {
+  width: 297mm;
+  margin: 10px auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.btn {
+  padding: 6px 12px;
+  font-size: 12px;
+  border: 1px solid #333;
+  background: #fff;
+  border-radius: 4px;
+  text-decoration: none;
+  color: #000;
+  margin-left: 5px;
+}
+
+.btn:hover {
+  background: #f2f2f2;
+}
+
+.month-box {
+  padding: 4px 6px;
+  font-size: 12px;
+  border: 1px solid #bbb;
+  border-radius: 4px;
+  background: #fff;
+}
+
+/* ================= PAGE ================= */
+.page {
+  width: 297mm;
+  background: #fff;
+  margin: auto;
+  padding: 10px;
+  border: 2px solid #4b74ff;
+}
+
+/* ================= HEADER ================= */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header img { height: 55px; }
+
+.header-center {
+  flex: 1;
+  text-align: center;
+}
+
+.title {
+  background: #4b74ff;
+  color: #fff;
+  padding: 6px;
+  font-weight: bold;
+  letter-spacing: 1px;
+}
+
+.subtitle {
+  margin-top: 6px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+/* ================= LEGEND ================= */
+.legend {
+  border: 2px solid #4b74ff;
+  padding: 8px;
+  font-size: 10px;
+  width: 250px;
+}
+
+.legend-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px;
+}
+
+.box { width: 12px; height: 12px; display: inline-block; }
+
+.AL  { background:#4b74ff; }
+.CL  { background:#f4a623; }
+.LIL { background:#2ecc71; }
+.UL  { background:#b0b0b0; }
+.MP  { background:#ff66b2; }
+.MC  { background:#ff3b30; }
+
+/* ================= TABLE ================= */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+  font-size: 10px;
+}
+
+th, td {
+  border: 1px solid #cfd8dc;
+  padding: 3px;
+  text-align: center;
+}
+
+thead th { background: #40b6ff; }
+
+.date {
+  width: 22px;
+  font-size: 9px;
+}
+
+.name {
+  text-align: left;
+  padding-left: 6px;
+}
+
+/* ================= FOOTER ================= */
+.footer {
+  margin-top: 8px;
+  font-size: 9px;
+  text-align: right;
+}
+</style>
+</head>
+
+<body>
+
+<!-- ================= ACTION BAR ================= -->
+<div class="action-bar">
+
+  <b>Leave Report Preview</b>
+
+  <!-- MONTH SELECTOR -->
+  <form method="get" style="display:flex; align-items:center; gap:6px;">
+    <input type="hidden" name="year" value="{{ year }}">
+    <input type="hidden" name="department" value="{{ department }}">
+
+    <label style="font-size:12px;">Month:</label>
+    <select name="month" class="month-box" onchange="this.form.submit()">
+      {% set months = {
+        '01':'January','02':'February','03':'March','04':'April',
+        '05':'May','06':'June','07':'July','08':'August',
+        '09':'September','10':'October','11':'November','12':'December'
+      } %}
+      {% for m, name in months.items() %}
+        <option value="{{ m }}" {% if m == month %}selected{% endif %}>
+          {{ name }}
+        </option>
+      {% endfor %}
+    </select>
+  </form>
+
+  <!-- ACTION BUTTONS -->
+  <div>
+    <a class="btn"
+       href="{{ url_for('team_leave_excel', department=department) }}">
+       Download Excel
+    </a>
+    <a class="btn"
+       href="{{ url_for('team_leave_pdf', department=department) }}">
+       Download PDF
+    </a>
+    <button class="btn" onclick="window.close()">Back</button>
+  </div>
+
+</div>
+
+<div class="page">
+
+  <!-- ================= HEADER ================= -->
+  <div class="header">
+    <img src="{{ url_for('static', filename='logo jetamaa.jpg') }}">
+
+    <div class="header-center">
+      <div class="title">EMPLOYEE LEAVE REPORT</div>
+
+      {% set MONTH_ABBR = {
+      '01':'JAN','02':'FEB','03':'MAR','04':'APR',
+      '05':'MAY','06':'JUN','07':'JUL','08':'AUG',
+      '09':'SEP','10':'OCT','11':'NOV','12':'DEC'
+    } %}
+
+      <div class="subtitle">
+        {{ department | upper }}-{{ MONTH_ABBR[month] }}-{{ year }}
+      </div>
+    </div>
+
+    <div class="legend">
+      <b>LEAVE TYPE</b>
+      <div class="legend-grid">
+        <div><span class="box AL"></span> Annual</div>
+        <div><span class="box UL"></span> Unpaid</div>
+        <div><span class="box CL"></span> Compassionate</div>
+        <div><span class="box MP"></span> Maternity / Paternity</div>
+        <div><span class="box LIL"></span> Leave-In-Lieu</div>
+        <div><span class="box MC"></span> MC</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= TABLE ================= -->
+  <table>
+    <thead>
+      <tr>
+        <th rowspan="2">NAME</th>
+        <th rowspan="2">DEPARTMENT</th>
+        <th rowspan="2">ENTITLEMENT</th>
+        <th colspan="31">DAY</th>
+        <th rowspan="2">BALANCE</th>
+      </tr>
+      <tr>
+        {% for d in range(1,32) %}
+          <th class="date">{{ d }}</th>
+        {% endfor %}
+      </tr>
+    </thead>
+
+    <tbody>
+    {% for u in rows %}
+      <tr>
+        <td class="name">{{ u.full_name }}</td>
+        <td>{{ u.department or '-' }}</td>
+        <td>{{ u.entitlement }}</td>
+
+        {% for d in range(1,32) %}
+          {% set lt = u.daily.get(d) %}
+          <td>
+            {% if lt %}
+              <span class="box {{ lt }}" title="{{ lt }}"></span>
+            {% endif %}
+          </td>
+        {% endfor %}
+
+        <td><b>{{ u.remaining }}</b></td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+
+
+  <div class="footer">
+    Printed on {{ printed_date }} · Jetama Sdn Bhd © {{ current_year }}
+  </div>
+
+</div>
+
+</body>
+</html>

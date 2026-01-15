@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container mt-4">
+
+  <div class="card shadow">
+    <div class="card-body">
+
+      <h4 class="mb-3">Individual Leave Report</h4>
+
+      <p>
+        <strong>Name:</strong> {{ employee.full_name }}<br>
+        <strong>Position:</strong> {{ employee.position }}<br>
+        <strong>Department:</strong> {{ department }}<br>
+        <strong>Year:</strong> {{ year }}
+      </p>
+
+      <hr>
+
+      <table class="table table-bordered text-center">
+        <thead class="table-light">
+          <tr>
+            <th>Month</th>
+            <th>Leave Used (Days)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for month, value in monthly.items() %}
+          <tr>
+            <td>{{ month }}</td>
+            <td>{{ value }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      <hr>
+
+      <p>
+        <strong>Entitled:</strong> {{ summary.entitled }}<br>
+        <strong>Used:</strong> {{ summary.used }}<br>
+        <strong>Balance:</strong> {{ summary.balance }}
+      </p>
+
+      <div class="mt-4 d-flex gap-2">
+        <a href="{{ url_for('manage_leaves') }}" class="btn btn-secondary">
+          ← Back
+        </a>
+
+        <a href="{{ url_for(
+            'download_individual_leave_report_pdf',
+            user_id=employee.id,
+            year=year
+        ) }}" class="btn btn-primary">
+          Download PDF
+        </a>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+{% endblock %}

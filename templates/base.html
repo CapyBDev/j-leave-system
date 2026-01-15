@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}J-Leave App{% endblock %}</title>
+
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Custom CSS -->
+  <link href="{{ url_for('static', filename='styles.css') }}" rel="stylesheet">
+
+  <!-- Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+  <!-- 🌗 DARK / LIGHT MODE CSS -->
+  <style>
+    body.light-mode {
+      background: #F4F7FC;
+      color: #212529;
+    }
+
+    body.dark-mode {
+      background: #0f172a;
+      color: #e5e7eb;
+    }
+
+    .dark-mode .bg-image {
+      opacity: 0.15;
+    }
+
+    /* Navbar */
+    .dark-mode .glass-nav {
+      background: rgba(15, 23, 42, 0.85) !important;
+      border-bottom: 1px solid #334155;
+    }
+
+    /* Cards */
+    .dark-mode .card,
+    .dark-mode .glass-card {
+      background: rgba(30, 41, 59, 0.9) !important;
+      color: #e5e7eb;
+      border-color: #334155;
+    }
+
+    /* Tables */
+    .dark-mode table {
+      color: #e5e7eb;
+    }
+
+    .dark-mode .table-light {
+      background: #1e293b !important;
+      color: #e5e7eb;
+    }
+
+    /* Inputs */
+    .dark-mode input,
+    .dark-mode select,
+    .dark-mode textarea {
+      background: #020617;
+      color: #e5e7eb;
+      border-color: #334155;
+    }
+
+    /* Buttons */
+    .dark-mode .btn-outline-light {
+      color: #e5e7eb;
+      border-color: #64748b;
+    }
+
+    /* Toast */
+    .dark-mode .toast {
+      background: #1e293b !important;
+    }
+
+    /* Calendar */
+    .dark-mode .fc {
+      background: #020617;
+    }
+
+    /* ============================= */
+  /* 🌗 DASHBOARD DARK MODE FIX */
+  /* ============================= */
+
+  .dark-mode .summary-card,
+  .dark-mode .data-card,
+  .dark-mode .glass-card {
+    background: rgba(30, 41, 59, 0.92) !important;
+    border: 1px solid rgba(148, 163, 184, 0.25);
+    color: #e5e7eb;
+    backdrop-filter: blur(10px);
+  }
+
+  /* Summary numbers */
+  .dark-mode .summary-value {
+    color: #60d9faff;
+  }
+
+  /* Summary titles */
+  .dark-mode .summary-title {
+    color: #cbd5f5;
+  }
+
+  /* Icons */
+  .dark-mode .summary-icon {
+    color: #93fde8ff;
+  }
+
+  /* Tables */
+  .dark-mode table {
+    color: #e5e7eb;
+  }
+
+  .dark-mode .table thead {
+    background: rgba(15, 23, 42, 0.8) !important;
+    color: #cbd5f5;
+  }
+
+  .dark-mode .table tbody tr {
+    border-color: rgba(148, 163, 184, 0.2);
+  }
+
+  .dark-mode .table tbody tr:hover {
+    background: rgba(51, 65, 85, 0.5);
+  }
+
+  /* Status badges */
+  .dark-mode .status-badge.approved {
+    background: rgba(34, 197, 94, 0.2);
+    color: #4ade80;
+  }
+
+  .dark-mode .status-badge.pending {
+    background: rgba(251, 191, 36, 0.25);
+    color: #fde68a;
+  }
+
+  .dark-mode .status-badge.rejected {
+    background: rgba(239, 68, 68, 0.25);
+    color: #fca5a5;
+  }
+
+  /* Dashboard section titles */
+  .dark-mode h4,
+  .dark-mode h5,
+  .dark-mode h6 {
+    color: #e5e7eb;
+  }
+
+  /* Inputs in dashboard */
+  .dark-mode .form-control,
+  .dark-mode .btn-select {
+    background: rgba(2, 6, 23, 0.8);
+    color: #e5e7eb;
+    border-color: rgba(148, 163, 184, 0.3);
+  }
+
+  /* Chart canvas container */
+  .dark-mode canvas {
+    background: transparent !important;
+  }
+
+  /* ================================================= */
+/* 🌙 FORCE DARK MODE DASHBOARD (OVERRIDE BOOTSTRAP) */
+/* ================================================= */
+
+body.dark-mode .data-card,
+body.dark-mode .summary-card,
+body.dark-mode .glass-card {
+  background: linear-gradient(
+    135deg,
+    rgba(15, 23, 42, 0.95),
+    rgba(30, 41, 59, 0.95)
+  ) !important;
+  border: 1px solid rgba(148, 163, 184, 0.25) !important;
+  color: #e5e7eb !important;
+  backdrop-filter: blur(12px);
+}
+
+/* Headings */
+body.dark-mode h4,
+body.dark-mode h5,
+body.dark-mode h6 {
+  color: #e0f2fe !important; /* light blue */
+}
+
+/* Tables */
+body.dark-mode .table {
+  color: #e5e7eb !important;
+}
+
+body.dark-mode .table thead th {
+  background: rgba(15, 23, 42, 0.9) !important;
+  color: #feffffff !important; /* cyan */
+  border-color: rgba(148, 163, 184, 0.25);
+}
+
+body.dark-mode .table tbody tr {
+  background: transparent !important;
+  border-color: rgba(148, 163, 184, 0.15);
+}
+
+body.dark-mode .table tbody tr:hover {
+  background: rgba(56, 189, 248, 0.08) !important;
+}
+
+/* Table muted text */
+body.dark-mode .text-muted {
+  color: #feffffff !important;
+}
+
+/* Links & icons */
+body.dark-mode a,
+body.dark-mode a i {
+  color: #9fcfffff !important;
+}
+
+body.dark-mode a:hover {
+  color: #7ddafcff !important;
+}
+
+/* Buttons (PDF / View) */
+body.dark-mode .btn-outline-primary {
+  color: #f83838ff;
+  border-color: #f86e38ff;
+}
+
+body.dark-mode .btn-outline-primary:hover {
+  background: #38bdf8;
+  color: #020617;
+}
+
+/* Status badges */
+body.dark-mode .status-badge.approved {
+  background: rgba(34, 197, 94, 0.25);
+  color: #4ade80;
+}
+
+body.dark-mode .status-badge.pending {
+  background: rgba(251, 191, 36, 0.25);
+  color: #fde68a;
+}
+
+body.dark-mode .status-badge.rejected {
+  background: rgba(239, 68, 68, 0.25);
+  color: #fca5a5;
+}
+
+/* Icons */
+body.dark-mode i {
+  color: #7dd3fc;
+}
+
+  </style>
+  
+</head>
+
+<body class="bg-gradient {{ session.get('theme_mode', 'light') }}-mode">
+
+  <div class="bg-image"></div>
+
+  <!-- ================= NAVBAR ================= -->
+  <nav class="navbar navbar-expand-lg navbar-dark glass-nav">
+    <div class="container-fluid">
+
+      <a class="navbar-brand d-flex align-items-center gap-2" href="#">
+        <img src="{{ url_for('static', filename='no bg.png') }}" alt="Logo" class="logo">
+        <span id="orgName">JETAMA SDN BHD | e-Leave</span>
+      </a>
+
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarsExample">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarsExample">
+
+        {% if session.get('user_id') %}
+
+        <!-- LEFT MENU -->
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          {% if session.get('role') == 'admin' %}
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('admin_dashboard') }}">
+              <i class="bi bi-speedometer"></i> Dashboard
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('manage_users') }}">
+              <i class="bi bi-people"></i> Employees
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('manage_leaves') }}">
+              <i class="bi bi-card-checklist"></i> Leaves
+            </a>
+          </li>
+          {% else %}
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('user_dashboard') }}">
+              <i class="bi bi-speedometer2"></i> Dashboard
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('apply_leave') }}">
+              <i class="bi bi-file-earmark-plus"></i> Apply Leave
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('calendar') }}">
+              <i class="bi bi-calendar3"></i> Calendar
+            </a>
+          </li>
+          {% endif %}
+        </ul>
+
+        <!-- RIGHT AREA -->
+        <div class="d-flex align-items-center gap-3">
+
+          <!-- 🌗 THEME TOGGLE -->
+          <a href="{{ url_for('toggle_theme') }}"
+             class="btn btn-sm btn-outline-light"
+             title="Toggle theme">
+            {% if session.get('theme_mode') == 'dark' %}
+              🌞
+            {% else %}
+              🌙
+            {% endif %}
+          </a>
+
+          <!-- PROFILE PHOTO -->
+          {% if session.get('profile_photo') %}
+            <img src="{{ url_for('static', filename='uploads/profile_photos/' ~ session.get('profile_photo')) }}"
+                 class="rounded-circle border"
+                 style="width:35px; height:35px; object-fit:cover;">
+          {% else %}
+            <i class="bi bi-person-circle text-white fs-4"></i>
+          {% endif %}
+
+          <!-- USER INFO -->
+          <span class="text-light small">
+            {{ session.get('full_name') }} ({{ session.get('role') }})
+          </span>
+
+          <!-- CLOCK -->
+          <span class="badge text-bg-light">
+            <i class="bi bi-clock"></i> <span id="clock"></span>
+          </span>
+
+          <!-- BUTTONS -->
+          <a class="btn btn-sm btn-outline-light" href="{{ url_for('profile') }}">
+            <i class="bi bi-person-gear"></i> Profile
+          </a>
+
+          <a class="btn btn-sm btn-danger" href="{{ url_for('logout') }}">
+            <i class="bi bi-box-arrow-right"></i> Logout
+          </a>
+
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </nav>
+
+  <!-- ================= CONTENT ================= -->
+  <main class="container py-4">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="position-fixed top-0 end-0 p-3" style="z-index:1080;">
+          {% for category, message in messages %}
+          <div class="toast show text-white bg-{{ 'primary' if category=='success' else ('danger' if category=='danger' else ('warning' if category=='warning' else 'secondary')) }} mb-2">
+            <div class="d-flex">
+              <div class="toast-body">{{ message }}</div>
+              <button class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- ================= SCRIPTS ================= -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+
+  <!-- FullCalendar -->
+  <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+
+</body>
+</html>

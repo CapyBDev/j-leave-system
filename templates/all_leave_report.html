@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}All Employee Leave Report{% endblock %}
+
+{% block content %}
+<div class="card glass-card">
+  <div class="card-body">
+
+    <h4 class="mb-3">All Employees Leave Report</h4>
+    <p>Period: {{ month or year }}</p>
+
+    <table class="table table-bordered table-sm">
+      <thead class="table-light">
+        <tr>
+          <th>Employee</th>
+          <th>Department</th>
+          <th>Total Applications</th>
+          <th>Total Leave Days</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in rows %}
+        <tr>
+          <td>{{ r.full_name }}</td>
+          <td>{{ r.department }}</td>
+          <td>{{ r.total_applications }}</td>
+          <td>{{ r.total_days }}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="4" class="text-center text-muted">No data</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+  </div>
+</div>
+{% endblock %}

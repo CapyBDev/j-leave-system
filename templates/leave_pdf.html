@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: 'Arial', sans-serif; font-size: 12px; color: #000; }
+        h2 { text-align: center; margin-bottom: 15px; text-transform: uppercase; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        td, th { border: 1px solid #000; padding: 6px; }
+        th { background: #eee; text-align: left; }
+        .section-title { font-weight: bold; padding: 6px; background: #ccc; }
+    </style>
+</head>
+<body>
+    <h2>Leave Application Form</h2>
+
+    <table>
+        <tr><th width="30%">Name</th><td>{{ leave.full_name }}</td></tr>
+        <tr><th>Position</th><td>{{ leave.position }}</td></tr>
+        <tr><th>Department</th><td>{{ leave.department_name or "-" }}</td></tr>
+        <tr><th>Leave Type</th><td>{{ leave.leave_type }}</td></tr>
+        <tr><th>Start Date</th><td>{{ leave.start_date }}</td></tr>
+        <tr><th>End Date</th><td>{{ leave.end_date }}</td></tr>
+        <tr><th>Total Days</th><td>{{ leave.total_days }}</td></tr>
+        <tr><th>Status</th><td>{{ leave.status }}</td></tr>
+        <tr><th>Reason</th><td>{{ leave.reason }}</td></tr>
+    </table>
+
+    <br><br>
+    <table>
+        <tr>
+            <th width="50%">Checked By (DGM)</th>
+            <th width="50%">Approved By (GM)</th>
+        </tr>
+        <tr>
+            <td height="60px"></td>
+            <td></td>
+        </tr>
+    </table>
+
+</body>
+</html>

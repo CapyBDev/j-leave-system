@@ -1,0 +1,52 @@
+<div class="page">
+
+  <!-- WATERMARK -->
+  <div class="watermark">
+    <img src="{{ url_for('static', filename='logo jetamaa.jpg') }}">
+  </div>
+
+  <div class="content">
+
+    <!-- HEADER -->
+    <div style="display:flex; justify-content:space-between;">
+      <img src="{{ url_for('static', filename='logo jetamaa.jpg') }}"
+           style="height:65px;">
+      <div style="font-size:11px;">
+        Printed Date: {{ printed_date }}
+      </div>
+    </div>
+
+    <h2>LEAVE REPORT</h2>
+    <div class="sub-title">
+      DEPARTMENT: {{ department | upper }} – {{ year }}
+    </div>
+
+    <div class="section-title">EMPLOYEE SUMMARY</div>
+
+    <table>
+      <thead>
+        <tr class="center">
+          <th>No</th>
+          <th>Employee Name</th>
+          <th>Department</th>
+          <th>Total Leave Used</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for r in rows %}
+        <tr class="center">
+          <td>{{ loop.index }}</td>
+          <td style="text-align:left;">{{ r.full_name }}</td>
+          <td>{{ r.department or '-' }}</td>
+          <td><b>{{ r.used or 0 }}</b></td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+
+    <div class="footer">
+      Authorised by Jetama Sdn Bhd © {{ year }}
+    </div>
+
+  </div>
+</div>

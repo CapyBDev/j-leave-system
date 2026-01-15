@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Login | J-Leave App{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6 col-lg-5">
+    <div class="card shadow-lg glass-card">
+      <div class="card-body p-4">
+        <div class="text-center mb-3">
+          <img src="{{ url_for('static', filename='logo jetamaa.jpg') }}" class="logo-lg mb-2" alt="Logo">
+          <h3 class="mb-0">J-Leave</h3>
+          <small class="text-info"><i>Employee Leave Management</i></small>      <!-- white -->
+        </div>
+        <form method="post">
+          <div class="mb-3">
+            <label class="form-label">Username</label>
+            <input type="text" class="form-control" name="username" placeholder="Enter username" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Password</label>
+            <input type="password" class="form-control" name="password" placeholder="Enter password" required>
+          </div>
+          <button class="btn btn-primary w-100">Sign In</button>
+          <div class="form-text mt-2">
+            Try admin: <code>admin / admin123</code> or user: <code>alice / password</code>
+          </div>
+        </form>
+        {% if show_forgot %}
+          <div class="text-center mt-3">
+              <a href="{{ url_for('forgot_password') }}" class="text-decoration-none text-primary">
+                🔐 Forgot Username / Password?
+              </a>
+          </div>
+        {% endif %}
+      </div>
+      <div class="card-footer text-center small">
+        &copy; <span id="yearCopy"></span> J-Leave • All rights reserved.
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

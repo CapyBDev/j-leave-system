@@ -1,0 +1,238 @@
+{% extends "base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+
+<style>
+/* ======= PAGE TITLE ======= */
+.detail-title {
+  font-weight: 700;
+  opacity: 0.90;
+  color: #b9f0ffff;
+  font-size: 26px;
+  margin-bottom: 18px;
+}
+
+/* ======= CARD CONTAINER ======= */
+.detail-card {
+  background:white;
+  opacity: 0.90;
+  border:1px solid #E3E7ED;
+  border-radius:14px;
+  padding:20px;
+  box-shadow:0 4px 12px rgba(0,0,0,0.05);
+}
+
+/* ======= TABLE STYLE ======= */
+.table thead {
+  background:#F7FAFD;
+  opacity: 0.90;
+  border-bottom:2px solid #E3E7ED;
+  color:#44546A;
+  font-weight:700;
+  font-size: 14px;
+}
+.table tbody tr:hover {
+  background:#F2F7FF !important;
+  opacity:0.90;
+  transition: 0.2s;
+}
+.table td {
+  vertical-align: middle;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* ======= STATUS BADGE ======= */
+.badge {
+  padding:6px 12px;
+  border-radius:6px;
+  font-size:12px;
+  font-weight:600;
+}
+.badge.approved { background:#E3FDE4; color:#14A93B; }
+.badge.pending  { background:#FFF4CE; color:#CE8B00; }
+.badge.rejected { background:#FFE3E3; color:#E03939; }
+
+/* ======= BACK BUTTON ======= */
+.btn-back {
+  background: #9bddff;
+  border-radius:8px;
+  opacity: 0.90;
+  padding:8px 16px;
+  font-weight:600;
+}
+
+/* ======= FILTER BAR ======= */
+.filter-card {
+  background:white;
+  opacity: 0.90;
+  border-radius:14px;
+  border:1px solid #E3E7ED;
+  padding:12px 16px;
+  margin-bottom:14px;
+}
+.filter-label {
+  font-size: 12px;
+  font-weight: 600;
+  color:#6B7280;
+  margin-bottom: 4px;
+}
+.alpha-btn {
+  border:none;
+  background:transparent;
+  font-size:12px;
+  padding:2px 5px;
+  margin:0 1px;
+  cursor:pointer;
+}
+.alpha-btn.active {
+  font-weight:700;
+  text-decoration:underline;
+}
+
+/* view reason button */
+.view-reason-btn {
+  font-size: 12px;
+  padding: 0;
+}
+</style>
+
+
+<!-- ======= PAGE CONTENT ======= -->
+<h4 class="detail-title">{{ title }}</h4>
+
+<!-- ======= FILTERS ======= -->
+<div class="filter-card">
+  <form method="get" class="row g-2 align-items-end">
+    <!-- TYPE -->
+    <div class="col-md-3">
+      <div class="filter-label">Type</div>
+      <select name="type" class="form-select form-select-sm">
+        <option value="">All Types</option>
+        {% for t in leave_types %}
+        <option value="{{ t }}" {% if filter_type == t %}selected{% endif %}>{{ t }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <!-- POSITION -->
+    <div class="col-md-3">
+      <div class="filter-label">Position</div>
+      <select name="position" class="form-select form-select-sm">
+        <option value="">All Positions</option>
+        {% for p in positions %}
+        <option value="{{ p }}" {% if filter_position == p %}selected{% endif %}>{{ p }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <!-- DATE RANGE -->
+    <div class="col-md-2">
+      <div class="filter-label">From Date</div>
+      <input type="date" name="date_from"
+             class="form-control form-control-sm"
+             value="{{ date_from }}">
+    </div>
+    <div class="col-md-2">
+      <div class="filter-label">To Date</div>
+      <input type="date" name="date_to"
+             class="form-control form-control-sm"
+             value="{{ date_to }}">
+    </div>
+
+    <!-- BUTTONS -->
+    <div class="col-md-2 d-flex gap-2">
+      <button type="submit" class="btn btn-primary btn-sm w-100">Apply</button>
+      <a href="{{ url_for('admin_dashboard_view', filter=current_filter) }}" 
+         class="btn btn-outline-secondary btn-sm w-100">Reset</a>
+    </div>
+
+    <!-- ALPHABET FILTER -->
+    <div class="col-12 mt-2">
+      <div class="filter-label mb-1">Name (A–Z)</div>
+      {% set current_alpha = filter_alpha|default('') %}
+      <div>
+        <button name="alpha" value="" class="alpha-btn {% if not current_alpha %}active{% endif %}">All</button>
+        {% for letter in "ABCDEFGHIJKLMNOPQRSTUVWXYZ" %}
+          <button name="alpha" value="{{ letter }}" 
+                  class="alpha-btn {% if current_alpha == letter %}active{% endif %}">
+            {{ letter }}
+          </button>
+        {% endfor %}
+      </div>
+    </div>
+  </form>
+</div>
+
+<!-- ======= TABLE ======= -->
+<div class="detail-card">
+  <table class="table table-bordered table-striped">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Position</th>
+        <th>Type</th>
+        <th>Period</th>
+        <th>Reason</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for l in leaves %}
+      <tr>
+        <td>{{ l.full_name }}</td>
+        <td>{{ l.position }}</td>
+        <td>{{ l.leave_type }}</td>
+
+        <!-- 🔹 Date formatting from string 'YYYY-MM-DD' → 'DD/MM/YY-DD/MM/YY' -->
+        <td>
+          {% set sd = l.start_date %}
+          {% set ed = l.end_date %}
+          {{ sd[8:10] }}/{{ sd[5:7] }}/{{ sd[2:4] }}-{{ ed[8:10] }}/{{ ed[5:7] }}/{{ ed[2:4] }}
+        </td>
+
+        <!-- 🔹 Collapsible reason -->
+        <td>
+          {% set rid = "reason-" ~ (l.id or loop.index) %}
+          <button class="btn btn-link view-reason-btn"
+                  data-bs-toggle="collapse"
+                  data-bs-target="#{{ rid }}"
+                  type="button">
+            View
+          </button>
+          <div class="collapse mt-1" id="{{ rid }}">
+            <small class="text-muted">
+              {{ l.reason or 'No reason provided' }}
+            </small>
+          </div>
+        </td>
+
+        <!-- 🔹 Status badge with proper class mapping -->
+        <td>
+          {% set status = l.status %}
+          {% if 'Pending' in status %}
+            {% set status_class = 'pending' %}
+          {% elif status == 'Approved' %}
+            {% set status_class = 'approved' %}
+          {% elif status == 'Rejected' %}
+            {% set status_class = 'rejected' %}
+          {% else %}
+            {% set status_class = status|lower|replace(' ', '-') %}
+          {% endif %}
+          <span class="badge {{ status_class }}">{{ status }}</span>
+        </td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="6" class="text-center text-muted">No records found</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<a href="{{ url_for('admin_dashboard') }}" class="btn btn-secondary btn-back mt-3">
+  ← Back to Dashboard
+</a>
+
+{% endblock %}

@@ -1,0 +1,566 @@
+{% extends "base.html" %}
+{% block title %}Manage Leaves | J-Leave{% endblock %}
+{% block content %}
+
+<div class="card glass-card mb-4">
+  <div class="card-body">
+    <h4 class="mb-3">
+      <i class="bi bi-person-lines-fill"></i> Manage Leave Applications
+    </h4>
+  </div>
+</div>
+<form method="get" action="{{ url_for('manage_leaves') }}" 
+class="row g-2 align-items-end mb-3">
+
+<!-- ================= LEAVE REPORT ================= -->
+<div class="card glass-card mb-4">
+  <div class="card-body">
+
+    <!-- HEADER + SEARCH -->
+    <form method="get"
+      action="{{ url_for('manage_leaves') }}"
+      data-section="report"
+      class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+
+      <!-- 🔧 action renamed to SEARCH -->
+      
+      <input type="hidden" name="action" value="filter">
+
+
+      <h5 class="mb-0">
+        <i class="bi bi-bar-chart"></i> Leave Report
+      </h5>
+
+      <div class="d-flex gap-2 align-items-center flex-wrap">
+
+        <!-- DEPARTMENT -->
+        <select class="form-select form-select-sm"
+                name="department"
+                style="width:150px;">
+          <option value="all">All Departments</option>
+          {% for d in departments %}
+            <option value="{{ d.name }}"
+              {% if selected_department == d.name %}selected{% endif %}>
+              {{ d.name }}
+            </option>
+          {% endfor %}
+        </select>
+
+        <!-- YEAR -->
+        <select class="form-select form-select-sm"
+                name="year"
+                style="width:110px;">
+          {% for y in range(2022, 2031) %}
+            <option value="{{ y }}"
+              {% if selected_year == y|string %}selected{% endif %}>
+              {{ y }}
+            </option>
+          {% endfor %}
+        </select>
+
+        <!-- SEARCH BUTTON -->
+        <button class="btn btn-primary btn-sm px-1 py-1">
+          <i class="bi bi-search"></i> Search
+        </button>
+
+        <!-- PREVIEW -->
+        <a class="btn btn-success btn-sm"
+          href="{{ url_for(
+              'preview_leave_report_department',
+              year=selected_year,
+              department=selected_department
+          ) }}"
+          target="_blank">
+          <i class="bi bi-eye"></i> Preview
+        </a>
+
+      </div>
+    </form>
+
+    <!-- ================= REPORT TABLE ================= -->
+    {% if leave_report %}
+    <div class="table-responsive">
+      <table class="table table-bordered table-sm align-middle text-center">
+
+        <thead class="table-light">
+          <tr>
+            <th style="min-width:160px;">Name</th>
+            <th>Jan</th><th>Feb</th><th>Mar</th><th>Apr</th>
+            <th>May</th><th>Jun</th><th>Jul</th><th>Aug</th>
+            <th>Sep</th><th>Oct</th><th>Nov</th><th>Dec</th>
+            <th>Total</th>
+            <th>Remaining</th>
+          </tr>
+        </thead>
+
+        <tbody>
+        {% for u in leave_report %}
+          <tr>
+
+            <!-- NAME (CLICK TO DOWNLOAD INDIVIDUAL REPORT) -->
+            <td class="text-start fw-semibold">
+              <a href="{{ url_for('view_individual_leave_report',
+                    user_id=u.user_id,
+                    year=selected_year) }}"
+                class="fw-semibold text-decoration-none text-primary">
+                {{ u.name }}
+              </a>
+            </td>
+
+            <!-- MONTHLY VALUES -->
+            {% for m in ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'] %}
+              <td>
+                {% if u.monthly.get(m, 0) > 0 %}
+                  <a href="#"
+                    class="text-decoration-none fw-semibold"
+                    data-bs-toggle="modal"
+                    data-bs-target="#leaveTypeModal"
+                    onclick='showLeaveTypes(
+                      "{{ u.name }}",
+                      "{{ m }}",
+                      {{ u.monthly_details.get(m, {}) | tojson }}
+                    )'>
+                    {{ u.monthly.get(m) }}
+                  </a>
+                {% else %}
+                  0
+                {% endif %}
+              </td>
+            {% endfor %}
+
+            <!-- TOTAL -->
+            <td class="fw-bold text-primary">
+              {% if u.total_used > 0 %}
+                <a href="#"
+                  class="text-decoration-none text-primary"
+                  data-bs-toggle="modal"
+                  data-bs-target="#leaveTypeModal"
+                  onclick='showLeaveTypes(
+                    "{{ u.name }}",
+                    "Total Leave",
+                    {{ u.leave_type_details | tojson }}
+                  )'>
+                  {{ u.total_used }}
+                </a>
+              {% else %}
+                0
+              {% endif %}
+            </td>
+
+            <!-- REMAINING -->
+            <td class="fw-bold text-success">
+              {{ u.remaining }}
+            </td>
+
+          </tr>
+        {% endfor %}
+        </tbody>
+
+      </table>
+    </div>
+    {% else %}
+      <div class="text-muted text-center py-4">
+        No data available. Please search to view report.
+      </div>
+    {% endif %}
+    
+  </div>
+</div>
+
+<div class="modal fade" id="leaveTypeModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title" id="leaveTypeTitle"></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        <ul class="list-group" id="leaveTypeList"></ul>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ================= MONTHLY LEAVE MATRIX ================= -->
+<div class="card glass-card mt-4">
+  <div class="card-body">
+
+    <!-- HEADER + FILTER -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h5 class="mb-0">
+        <i class="bi bi-table"></i> Monthly On-Leave List
+      </h5>
+
+      <form method="get"
+        action="{{ url_for('manage_leaves') }}"
+        data-section="matrix"
+        class="d-flex gap-2 align-items-center flex-wrap">
+
+        <input type="hidden" name="view" value="monthly_matrix">
+        <input type="hidden" name="action" value="filter">
+        <input type="hidden" name="year" value="{{ selected_year }}">
+        <input type="hidden" name="department" value="{{ selected_department }}">
+
+        <!-- MONTH (WORDS) -->
+        <select name="matrix_month" class="form-select form-select-sm" style="width:130px;">
+          {% set months = {
+            "01":"JAN","02":"FEB","03":"MAR","04":"APR","05":"MAY","06":"JUN",
+            "07":"JUL","08":"AUG","09":"SEP","10":"OCT","11":"NOV","12":"DEC"
+          } %}
+          {% for m, label in months.items() %}
+            <option value="{{ m }}" {% if selected_month == m %}selected{% endif %}>
+              {{ label }}
+            </option>
+          {% endfor %}
+        </select>
+
+        <!-- YEAR -->
+        <select name="matrix_year" class="form-select form-select-sm" style="width:110px;">
+          {% for y in range(2022, 2031) %}
+            <option value="{{ y }}" {% if selected_year == y|string %}selected{% endif %}>
+              {{ y }}
+            </option>
+          {% endfor %}
+        </select>
+
+        <!-- DEPARTMENT -->
+        <select name="matrix_department" class="form-select form-select-sm" style="width:160px;">
+          <option value="all">All Departments</option>
+          {% for d in departments %}
+            <option value="{{ d.name }}" {% if selected_dept == d.name %}selected{% endif %}>
+              {{ d.name }}
+            </option>
+          {% endfor %}
+        </select>
+
+        <button class="btn btn-primary btn-sm">
+          <i class="bi bi-search"></i> Search
+        </button>
+      </form>
+    </div>
+
+    <!-- MATRIX TABLE -->
+    <div class="table-responsive">
+      <table class="table table-bordered table-sm text-center align-middle">
+
+        <thead class="table-light">
+          <tr>
+            <th style="min-width:160px;">Name</th>
+            {% for d in range(1,32) %}
+              <th style="width:36px;">{{ "%02d"|format(d) }}</th>
+            {% endfor %}
+          </tr>
+        </thead>
+
+        <tbody>
+        {% if monthly_matrix %}
+          {% for row in monthly_matrix %}
+          <tr>
+            <td class="text-start fw-semibold">{{ row.user_name }}</td>
+
+            {% for d in range(1,32) %}
+              {% set day = "%02d"|format(d) %}
+              {% set lt = row.leaves.get(day) %}
+              <td>
+                {% if lt %}
+                  {% if lt == 'MC' %}
+                    <span class="text-danger fw-bold">✓</span>
+                  {% else %}
+                    <span class="text-success fw-bold">✓</span>
+                  {% endif %}
+                {% endif %}
+              </td>
+            {% endfor %}
+          </tr>
+          {% endfor %}
+        {% else %}
+          <tr>
+            <td colspan="32" class="text-center text-muted py-4">
+              No leave data for selected month
+            </td>
+          </tr>
+        {% endif %}
+        </tbody>
+
+      </table>
+    </div>
+
+    <!-- LEGEND -->
+    <div class="mt-3 small d-flex gap-2 flex-wrap">
+
+      <span class="note-approved">
+        ✓ Approved Leave
+      </span>
+
+      <span class="note-mc">
+        ✓ MC
+      </span>
+
+    </div>
+  </div>
+</div>
+
+<!-- 🟢 COMPLETED APPLICATIONS -->
+<div class="card glass-card mt-4">
+  <div class="card-body">
+
+    <!-- HEADER -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h5 class="mb-0">
+        <i class="bi bi-check2-square"></i> Applied Leaves List
+      </h5>
+    </div>
+
+    <!-- FILTER BAR (SAME STYLE AS LEAVE REPORT) -->
+    <div class="d-flex flex-wrap gap-2 align-items-end mb-3">
+
+      <!-- ALL / NAME A–Z -->
+      <select id="cFilterName" class="form-select form-select-sm" style="width:140px;">
+        <option value="">All Names</option>
+        {% for ch in "ABCDEFGHIJKLMNOPQRSTUVWXYZ" %}
+          <option value="{{ ch }}">{{ ch }}</option>
+        {% endfor %}
+      </select>
+
+      <!-- DEPARTMENT -->
+      <select id="cFilterDept" class="form-select form-select-sm" style="width:160px;">
+        <option value="">All Departments</option>
+      </select>
+
+      <!-- YEAR -->
+      <select id="cFilterYear" class="form-select form-select-sm" style="width:120px;">
+        <option value="">All Years</option>
+        {% for y in range(2022, 2031) %}
+          <option value="{{ y }}">{{ y }}</option>
+        {% endfor %}
+      </select>
+
+      <!-- MONTH -->
+      <select id="cFilterMonth" class="form-select form-select-sm" style="width:120px;">
+        <option value="">All Months</option>
+        {% for m in range(1,13) %}
+          <option value="{{ "%02d"|format(m) }}">
+            {{ "%02d"|format(m) }}
+          </option>
+        {% endfor %}
+      </select>
+
+      <!-- STATUS -->
+      <select id="cFilterStatus" class="form-select form-select-sm" style="width:140px;">
+        <option value="">All Status</option>
+        <option value="Approved">Approved</option>
+        <option value="Rejected">Rejected</option>
+      </select>
+
+      <!-- FILTER BUTTON -->
+      <button type="button"
+              class="btn btn-primary btn-sm"
+              onclick="applyCompletedFilter()">
+        <i class="bi bi-search"></i> Search
+      </button>
+
+      <!-- RESET -->
+      <button type="button"
+              class="btn btn-outline-secondary btn-sm"
+              onclick="resetCompletedFilter()">
+        Reset
+      </button>
+
+    </div>
+
+    <!-- LIST -->
+    <div class="table-responsive">
+      <table class="table table-hover align-middle" id="completedTable">
+        <thead class="table-light">
+          <tr>
+            <th>#</th>
+            <th>Employee</th>
+            <th>Department</th>
+            <th>Leave Type</th>
+            <th>Period</th>
+            <th>Status</th>
+            <th>Approver</th>
+          </tr>
+        </thead>
+
+        <tbody>
+        {% if completed %}
+          {% for l in completed %}
+          <tr
+            data-name="{{ l.full_name|lower }}"
+            data-dept="{{ (l.department_name or '')|lower }}"
+            data-status="{{ l.status }}"
+            data-year="{{ l.start_date[0:4] }}"
+            data-month="{{ l.start_date[5:7] }}"
+          >
+            <td>{{ l.id }}</td>
+            <td>{{ l.full_name }}</td>
+            <td>{{ l.department_name or '-' }}</td>
+            <td>{{ l.leave_type }}</td>
+            <td>
+              <small>{{ l.start_date }} → {{ l.end_date }}</small>
+            </td>
+            <td>
+              <span class="badge
+                {% if l.status == 'Approved' %} bg-success
+                {% elif l.status == 'Rejected' %} bg-danger
+                {% else %} bg-secondary {% endif %}">
+                {{ l.status }}
+              </span>
+            </td>
+            <td>{{ l.approver_name or '-' }}</td>
+          </tr>
+          {% endfor %}
+        {% else %}
+          <tr>
+            <td colspan="7" class="text-center text-muted py-4">
+              No completed applications found
+            </td>
+          </tr>
+        {% endif %}
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</div>
+
+<!-- ================= COMPLETED FILTER JS ================= -->
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+
+  const url = new URL(window.location.href);
+  const view = url.searchParams.get("view") || "leave_report";
+
+  const deptSelect = document.getElementById("cFilterDept");
+
+  // ===============================
+  // RESET dropdown first (IMPORTANT)
+  // ===============================
+  deptSelect.innerHTML = `<option value="">All Departments</option>`;
+
+  // ===============================
+  // REBUILD department options
+  // ===============================
+  const deptSet = new Set();
+
+  document.querySelectorAll("#completedTable tbody tr").forEach(row => {
+    if (row.dataset.dept) {
+      deptSet.add(row.dataset.dept);
+    }
+  });
+
+  deptSet.forEach(d => {
+    deptSelect.insertAdjacentHTML(
+      "beforeend",
+      `<option value="${d}">${d}</option>`
+    );
+  });
+
+  // ===============================
+  // AUTO RESET FILTERS BY VIEW
+  // ===============================
+  if (view !== "applied") {
+    document.querySelectorAll(
+      "#cFilterName, #cFilterDept, #cFilterYear, #cFilterMonth, #cFilterStatus"
+    ).forEach(el => el.value = "");
+  }
+
+});
+
+function showLeaveTypes(name, period, data) {
+  document.getElementById("leaveTypeTitle").innerHTML =
+    `<span class="fw-semibold">${name}</span>
+     <small class="text-muted"> – ${period}</small>`;
+
+  const list = document.getElementById("leaveTypeList");
+  list.innerHTML = "";
+
+  if (!data || Object.keys(data).length === 0) {
+    list.innerHTML = `
+      <li class="list-group-item text-muted text-center">
+        No leave records
+      </li>`;
+    return;
+  }
+
+  for (const [type, records] of Object.entries(data)) {
+
+    list.innerHTML += `
+      <li class="list-group-item">
+        <div class="fw-semibold mb-1">${type}</div>
+        ${records.map(r => {
+          const sameDay = r.start === r.end;
+          const range = sameDay
+            ? formatDate(r.start)
+            : `${formatDate(r.start)} → ${formatDate(r.end)}`;
+
+          return `
+            <div class="small text-muted ms-2">
+              • ${r.days} day(s) – ${range}
+            </div>`;
+        }).join("")}
+      </li>`;
+  }
+}
+
+function formatDate(d) {
+  const date = new Date(d);
+  return date.toLocaleDateString("en-GB"); // dd-mm-yyyy
+}
+
+
+function applyCompletedFilter() {
+  const name   = document.getElementById("cFilterName").value.toLowerCase();
+  const dept   = document.getElementById("cFilterDept").value.toLowerCase();
+  const year   = document.getElementById("cFilterYear").value;
+  const month  = document.getElementById("cFilterMonth").value;
+  const status = document.getElementById("cFilterStatus").value;
+
+  document.querySelectorAll("#completedTable tbody tr").forEach(row => {
+    let show = true;
+
+    const rName   = row.dataset.name || "";
+    const rDept   = row.dataset.dept || "";
+    const rYear   = row.dataset.year || "";
+    const rMonth  = row.dataset.month || "";
+    const rStatus = row.dataset.status || "";
+
+    if (name && !rName.startsWith(name.toLowerCase())) show = false;
+    if (dept && !rDept.includes(dept)) show = false;
+    if (year && rYear !== year) show = false;
+    if (month && rMonth !== month) show = false;
+    if (status && rStatus !== status) show = false;
+
+    row.style.display = show ? "" : "none";
+  });
+}
+
+function resetCompletedFilter() {
+  document.querySelectorAll(
+    "#cFilterName, #cFilterDept, #cFilterYear, #cFilterMonth, #cFilterStatus"
+  ).forEach(el => el.value = "");
+
+  document.querySelectorAll("#completedTable tbody tr")
+    .forEach(row => row.style.display = "");
+}
+
+// ================= TOGGLE REPORT FILTER =================
+function toggleReportFilter() {
+  const filters = document.getElementById("reportFilters");
+  const btn = document.getElementById("reportFilterToggleBtn");
+
+  if (filters.style.display === "none") {
+    filters.style.display = "flex";
+    btn.innerHTML = '<i class="bi bi-eye-slash"></i> Hide';
+  } else {
+    filters.style.display = "none";
+    btn.innerHTML = '<i class="bi bi-eye"></i> Search';
+  }
+}
+</script>
+
+{% endblock %}

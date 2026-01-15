@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Employee Leave Report{% endblock %}
+
+{% block content %}
+<div class="card glass-card">
+  <div class="card-body">
+
+    <h4 class="mb-3">Employee Leave Report</h4>
+
+    <p>
+      <strong>Name:</strong> {{ emp.full_name }} <br>
+      <strong>Position:</strong> {{ emp.position }} <br>
+      <strong>Department:</strong> {{ emp.department or '-' }} <br>
+      <strong>Period:</strong>
+      {{ month or year }}
+    </p>
+
+    <table class="table table-bordered table-sm">
+      <thead class="table-light">
+        <tr>
+          <th>Leave Type</th>
+          <th>Start</th>
+          <th>End</th>
+          <th>Days</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for l in leaves %}
+        <tr>
+          <td>{{ l.leave_type }}</td>
+          <td>{{ l.start_date }}</td>
+          <td>{{ l.end_date }}</td>
+          <td>{{ l.total_days }}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="4" class="text-center text-muted">No records</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <h6>Total Leave Days: {{ total_days }}</h6>
+
+    <div class="mt-3">
+      <a href="{{ url_for('download_employee_leave_report',
+          user_id=user_id,
+          month=month,
+          year=year) }}"
+         class="btn btn-success btn-sm">
+        <i class="bi bi-download"></i> Download CSV
+      </a>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

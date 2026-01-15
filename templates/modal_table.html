@@ -1,0 +1,16 @@
+<table class="table table-sm modal-table">
+  <thead><tr><th>Name</th><th>Type</th><th>From</th><th>To</th><th>Status</th></tr></thead>
+  <tbody>
+    {% for d in data %}
+      <tr>
+        <td>{{ d.full_name }}</td>
+        <td>{{ d.leave_type }}</td>
+        <td>{{ d.start_date }}</td>
+        <td>{{ d.end_date }}</td>
+        <td>{{ d.status }}</td>
+      </tr>
+    {% else %}
+      <tr><td colspan="5" class="text-center text-muted">No records</td></tr>
+    {% endfor %}
+  </tbody>
+</table>

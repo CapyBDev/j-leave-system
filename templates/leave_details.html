@@ -1,0 +1,283 @@
+{% extends "base.html" %}
+{% block title %}Leave Application Form | J-Leave{% endblock %}
+{% block content %}
+
+
+<style>
+  /* =======================
+     A4 PAGE OPTIMIZED STYLING
+     ======================= */
+
+  body {
+      background: #f4f6fc !important;
+      opacity:0.90;
+  }
+
+  .form-border {
+      background: #ffffff !important;
+      opacity: 0.90;
+      padding: 16px !important;
+      border: 1px solid #2a3f61 !important;
+      border-radius: 6px !important;
+      box-shadow: none !important;
+      max-width: 780px;   /* A4 width - margins */
+      margin: auto;
+  }
+
+  /* Header spacing smaller */
+  .header-title {
+      font-weight: 700;
+      color: #1a2f52;
+      font-size: 18px !important;
+      letter-spacing: 0.5px;
+  }
+
+  .company-logo {
+      height: 85px; /* smaller logo */
+  }
+
+  /* Section title (slimmer) */
+  .form-section-title {
+      background: #0f315e;
+      opacity: 0.90;
+      color: #fff;
+      padding: 5px 10px;
+      font-size: 12px;
+      font-weight: 700;
+      border-radius: 4px;
+      margin-top: 10px;
+      margin-bottom: 6px;
+  }
+
+  /* Table Styling for A4 */
+  .form-table th {
+      width: 30%;
+      background: #e4efff;
+      opacity: 0.90;
+      color: #003463;
+      font-weight: 600;
+      padding: 4px 6px !important;
+      font-size: 12px;
+      border-bottom: 1px solid #ccd6e3;
+  }
+
+  .form-table td {
+      padding: 4px 6px !important;
+      font-size: 12px !important;
+      border-bottom: 1px solid #ccd6e3;
+  }
+
+  /* Reduce gap between tables */
+  .form-table {
+      margin-bottom: 6px !important;
+  }
+
+  /* Support doc preview smaller */
+  .support-preview {
+      max-height: 180px !important;
+  }
+
+  /* Buttons spacing minimal */
+  .btn-sm {
+      font-size: 11px !important;
+      padding: 2px 6px !important;
+  }
+
+  /* ==== PRINT MODE (PDF / A4) ==== */
+  @media print {
+      body {
+          background: #fff !important;
+      }
+
+      .form-border {
+          border: 1px solid #000 !important;
+          padding: 10px !important;
+          max-width: 100% !important;
+          box-shadow: none !important;
+      }
+
+      /* Section title (slimmer) */
+      .form-section-title {
+        background: #0f315e;
+        opacity: 0.90;
+        color: #fff;
+        padding: 5px 10px;
+        font-size: 12px;
+        font-weight: 700;
+        border-radius: 4px;
+        margin-top: 10px;
+        margin-bottom: 6px;
+      }
+
+      img.company-logo {
+          height: 45px !important;
+          margin-left: auto;
+      }
+
+      .form-table th,
+      .form-table td {
+          font-size: 11px !important;
+          padding: 3px !important;
+      }
+
+      /* Remove all interactive UI elements */
+      nav, .btn, .sidebar, footer {
+          display: none !important;
+      }
+
+      /* Prevent page breaks inside tables */
+      table { page-break-inside: avoid; }
+  }
+</style>
+
+
+<div class="form-border">
+
+  <!-- ===== Header ===== -->
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+      <span class="header-title">LEAVE APPLICATION FORM</span><br>
+      <small>Date Printed: {{ datetime.utcnow().strftime('%d/%m/%Y') }}</small>
+    </div>
+    <img src="{{ url_for('static', filename='no bg.png') }}" class="company-logo">
+  </div>
+
+  <!-- ===== Applicant Information ===== -->
+  <div class="form-section-title">EMPLOYEE INFORMATION</div>
+  <table class="table table-borderless form-table mb-3">
+    <tr><th>Employee Name:</th><td>{{ leave.full_name }}</td></tr>
+    <tr><th>Department:</th><td>{{ leave.department_name or '-' }}</td></tr>
+    <tr><th>Position:</th><td>{{ leave.position or '-' }}</td></tr>
+    <tr><th>Email:</th><td>{{ leave.email or '-' }}</td></tr>
+    <tr><th>Phone:</th><td>{{ leave.phone or '-' }}</td></tr>
+    <tr><th>Home Address:</th><td>{{ leave.address or '-' }}</td></tr>
+  </table>
+
+  <!-- ===== Leave Details ===== -->
+  <div class="form-section-title">LEAVE DETAILS</div>
+  <table class="table table-borderless form-table mb-3">
+    <tr><th>Leave Type:</th><td>{{ leave.leave_type }}</td></tr>
+    <tr><th>Start Date:</th><td>{{ leave.start_date }}</td></tr>
+    <tr><th>End Date:</th><td>{{ leave.end_date }}</td></tr>
+    <tr><th>Reason:</th><td>{{ leave.reason or '-' }}</td></tr>
+    <tr><th>Contact Address During Leave:</th><td>{{ leave.contact_address or '-' }}</td></tr>
+    <tr><th>Contact Phone During Leave:</th><td>{{ leave.contact_phone or '-' }}</td></tr>
+  </table>
+
+  <!-- ===== Current Status ===== -->
+  <div class="form-section-title">STATUS & PROCESSING</div>
+  <table class="table table-borderless form-table mb-3">
+    <tr><th>Recommended By:</th><td>{{ leave.checker_name or '-' }}</td></tr>
+    <tr><th>Approved By:</th><td>{{ leave.approver_name or '-' }}</td></tr>
+    <tr><th>Application Status:</th>
+      <td>
+        <span class="badge text-bg-{% if leave.status=='Approved' %}success{% elif leave.status=='Rejected' %}danger{% else %}warning{% endif %}">
+        {{ leave.status }}
+        </span>
+      </td>
+    </tr>
+    <tr><th>Date Applied:</th><td>{{ leave.created_at[:10] }}</td></tr>
+
+    <tr><th>Date Checked:</th>
+        <td>{{ leave.checked_at[:10] if leave.checked_at else "--" }}</td>
+    </tr>
+
+    <tr><th>Date Approved:</th>
+        <td>{{ leave.approved_at[:10] if leave.approved_at else "--" }}</td>
+    </tr>
+
+  </table>
+
+  <!-- ===== Supporting Document ===== -->
+  {% if leave.support_doc %}
+  <div class="form-section-title">SUPPORTING DOCUMENT</div>
+  <div class="mt-2">
+      {% set ext = leave.support_doc.split('.')[-1].lower() %}
+
+      {% if ext in ["png","jpg","jpeg","gif"] %}
+        <img src="{{ url_for('leave_docs', filename=leave.support_doc) }}" class="img-fluid rounded border mb-2" style="max-height:260px;">
+        <br>
+        <a href="{{ url_for('leave_docs', filename=leave.support_doc) }}" target="_blank" class="btn btn-outline-primary btn-sm">
+          <i class="bi bi-box-arrow-up-right"></i> View Full Size
+        </a>
+
+      {% elif ext == "pdf" %}
+        <iframe src="{{ url_for('leave_docs', filename=leave.support_doc) }}" style="width:100%; height:420px;" frameborder="0"></iframe>
+        <br>
+        <a href="{{ url_for('leave_docs', filename=leave.support_doc) }}" target="_blank" class="btn btn-outline-primary btn-sm">
+          <i class="bi bi-file-earmark-pdf"></i> Open PDF
+        </a>
+
+      {% else %}
+        <a class="btn btn-primary btn-sm" href="{{ url_for('leave_docs', filename=leave.support_doc) }}" target="_blank">
+          <i class="bi bi-download"></i> Download Attachment
+        </a>
+      {% endif %}
+  </div>
+  {% endif %}
+
+  <!-- Download Leave Form PDF -->
+  <a href="{{ url_for('download_leave_pdf', leave_id=leave['id']) }}" 
+    class="btn btn-danger btn-sm" target="_blank">
+      📄 Download Leave Form PDF
+  </a>
+
+  {% if leave['support_doc'] %}
+  <!-- Download Supporting Document -->
+  <a href="{{ url_for('leave_docs', filename=leave['support_doc']) }}" 
+    class="btn btn-secondary btn-sm">
+      📎 Download Supporting Document
+  </a>
+{% endif %}
+
+
+  <hr>
+
+  <!-- ===== Actions (Only on this form) ===== -->
+<div class="mt-4">
+
+  <a href="{{ url_for('user_dashboard') }}" class="btn btn-secondary">
+    <i class="bi bi-arrow-left"></i> Back
+  </a>
+
+  <!-- ⬅ CHECK ACTION (DGM only, pending check) -->
+  {% if "DEPUTY GENERAL MANAGER" in session.get('position','').upper()
+        and leave.status == 'Pending Check' %}
+
+      <form method="post" action="{{ url_for('check_leave_action', leave_id=leave.id) }}" class="d-inline">
+        <button class="btn btn-success">
+          <i class="bi bi-check2-circle"></i> Mark as Checked
+        </button>
+      </form>
+
+      <form method="post" action="{{ url_for('reject_leave_action', leave_id=leave.id) }}" class="d-inline">
+        <button class="btn btn-danger">
+          <i class="bi bi-x-circle"></i> Reject
+        </button>
+      </form>
+
+  {% endif %}
+
+  <!-- ⬅ APPROVE ACTION (GM only, pending approval) -->
+  {% if "GENERAL MANAGER" in session.get('position','').upper()
+        and leave.status == 'Pending Approval' %}
+
+      <form method="post" action="{{ url_for('approve_leave_action', leave_id=leave.id) }}" class="d-inline">
+        <button class="btn btn-success">
+          <i class="bi bi-check2"></i> Approve Leave
+        </button>
+      </form>
+
+      <form method="post" action="{{ url_for('reject_leave_action', leave_id=leave.id) }}" class="d-inline">
+        <button class="btn btn-danger">
+          <i class="bi bi-x"></i> Reject
+        </button>
+      </form>
+
+  {% endif %}
+
+</div>
+
+
+</div>
+{% endblock %}

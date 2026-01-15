@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}Team Leave Report{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+
+  <div class="card shadow">
+    <div class="card-body">
+
+      <h4 class="mb-3">Team Leave Dashboard</h4>
+
+      <!-- FILTER -->
+      <form method="get" class="row g-2 mb-4">
+        <div class="col-md-4">
+          <select name="department" class="form-select" onchange="this.form.submit()">
+            <option value="">-- Select Department --</option>
+            {% for d in departments %}
+              <option value="{{ d }}" {% if d == selected_department %}selected{% endif %}>
+                {{ d }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+      </form>
+
+      {% if report %}
+      <!-- ACTION BUTTONS -->
+      <div class="mb-3">
+        <a href="/team_leave_pdf?department={{ selected_department }}" class="btn btn-danger btn-sm">Download PDF</a>
+        <a href="/team_leave_excel?department={{ selected_department }}" class="btn btn-success btn-sm">Download Excel</a>
+      </div>
+
+      <!-- TABLE -->
+      <div class="table-responsive">
+        <table class="table table-bordered table-striped">
+          <thead class="table-dark text-center">
+            <tr>
+              <th>Name</th>
+              <th>Position</th>
+              <th>Leave Type</th>
+              <th>Leave Date</th>
+              <th>Days</th>
+              <th>Balance</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for r in report %}
+            <tr>
+              <td>{{ r.name }}</td>
+              <td>{{ r.position }}</td>
+              <td>
+                <span class="badge bg-info">{{ r.leave_type }}</span>
+              </td>
+              <td>{{ r.date }}</td>
+              <td class="text-center">{{ r.days }}</td>
+              <td class="text-center">{{ r.balance }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      {% else %}
+        <p class="text-muted">No approved leave records.</p>
+      {% endif %}
+
+    </div>
+  </div>
+
+</div>
+{% endblock %}

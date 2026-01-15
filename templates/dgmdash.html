@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Deputy GM Dashboard{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h3 class="fw-bold mb-4"><i class="bi bi-check2-square"></i> Leaves Pending Check</h3>
+
+    {% if leaves %}
+    <div class="row g-3">
+        {% for l in leaves %}
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0 glass-card">
+                <div class="card-body">
+
+                    <h5 class="mb-1">{{ l.full_name }}</h5>
+                    <small class="text-muted">{{ l.position }} — {{ l.department_name }}</small>
+
+                    <hr>
+
+                    <p><strong>Leave Type:</strong> {{ l.leave_type }}</p>
+                    <p><strong>Period:</strong> {{ l.start_date }} → {{ l.end_date }}</p>
+                    <p><strong>Reason:</strong> {{ l.reason or 'No reason provided' }}</p>
+
+                    <p><strong>Document:</strong>
+                        {% if l.support_doc %}
+                            <a href="/leave_docs/{{ l.support_doc }}" target="_blank"
+                               class="btn btn-sm btn-outline-primary">View Document</a>
+                        {% else %}
+                            <span class="text-muted">No document</span>
+                        {% endif %}
+                    </p>
+
+                    <!-- 👉 Status Only -->
+                    <p><strong>Status:</strong>
+                        <span class="badge bg-{% if l.status=='Approved' %}success
+                                           {% elif l.status=='Rejected' %}danger
+                                           {% else %}warning{% endif %}">
+                            {{ l.status }}
+                        </span>
+                    </p>
+
+                    <!-- 👉 Link to form where checking happens -->
+                    <a href="{{ url_for('leave_details', leave_id=l.id) }}" class="btn btn-primary w-100">
+                        <i class="bi bi-eye"></i> View Leave Form
+                    </a>
+
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+        <p class="text-muted text-center mt-4">No leave applications waiting for checking.</p>
+    {% endif %}
+</div>
+{% endblock %}

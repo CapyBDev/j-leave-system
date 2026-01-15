@@ -1,0 +1,13 @@
+<td>
+  {% if leave.support_doc %}
+    <a
+      href="{{ url_for('leave_docs', filename=leave.support_doc) }}"
+      target="_blank"
+      class="btn btn-sm btn-outline-primary"
+    >
+      View Document
+    </a>
+  {% else %}
+    <span class="text-muted">No file</span>
+  {% endif %}
+</td>

@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+{% block title %}Apply Leave | J-Leave{% endblock %}
+{% block content %}
+
+<div class="row justify-content-center">
+  <div class="col-lg-10">
+    <div class="card glass-card">
+      <div class="card-body">
+        <h4 class="mb-3"><i class="bi bi-file-earmark-plus"></i> Apply for Leave</h4>
+
+        <!-- Remaining Leave -->
+        <div class="alert alert-info d-flex justify-content-between align-items-center">
+          <strong>Total Leave Remaining:</strong>
+          <span class="badge bg-primary fs-5">{{ remaining_leave }} Days</span>
+        </div>
+
+        <form method="post" action="{{ url_for('apply_leave') }}" enctype="multipart/form-data" class="row g-3">
+
+          <!-- From Applicant -->
+          <div class="col-md-6">
+            <label class="form-label">From The Applicant</label>
+            <input type="text" class="form-control" value="{{ full_name }}" readonly>
+          </div>
+
+          <!-- Date of Application -->
+          <div class="col-md-6">
+            <label class="form-label">Date of Application</label>
+            <input type="text" class="form-control" value="{{ current_date }}" readonly>
+          </div>
+
+          <!-- Recommended By -->
+          <div class="col-md-6">
+            <label class="form-label">Recommended By</label>
+
+            {% if "DEPUTY GENERAL MANAGER" in position.upper() or "GENERAL MANAGER" in position.upper() %}
+                <input type="text" class="form-control" value="--" readonly>
+                <input type="hidden" name="checker" value="">
+            {% else %}
+                <input type="text" class="form-control" value="Deputy General Manager" readonly>
+                <input type="hidden" name="checker" value="Deputy General Manager">
+            {% endif %}
+          </div>
+
+
+          <!-- Approved By -->
+          <div class="col-md-6">
+            <label class="form-label">Approved By</label>
+
+            {% if "DEPUTY GENERAL MANAGER" in position.upper() %}
+                <input type="text" class="form-control" value="General Manager" readonly>
+                <input type="hidden" name="approver" value="General Manager">
+
+            {% elif "GENERAL MANAGER" in position.upper() %}
+                <input type="text" class="form-control" value="CEO" readonly>
+                <input type="hidden" name="approver" value="CEO">
+
+            {% else %}
+                <input type="text" class="form-control" value="General Manager" readonly>
+                <input type="hidden" name="approver" value="General Manager">
+            {% endif %}
+          </div>
+
+
+          <!-- Leave Applied From -->
+          <div class="col-md-6">
+            <label class="form-label">Leave Applied From</label>
+            <input type="date" class="form-control" name="start_date" required>
+          </div>
+
+          <!-- Leave Applied To -->
+          <div class="col-md-6">
+            <label class="form-label">Leave Applied To</label>
+            <input type="date" class="form-control" name="end_date" required>
+          </div>
+
+          <!-- Leave Categories -->
+          <div class="col-12 mt-3">
+            <h5>Leave Category</h5>
+          </div>
+
+          <div class="col-md-4">
+            <strong>Annual Leave</strong><br>
+            <input type="radio" name="leave_type" value="Normal" required> Normal<br>
+            <input type="radio" name="leave_type" value="Emergency"> Emergency<br>
+          </div>
+
+          <div class="col-md-4">
+            <strong>Compassionate Leave</strong><br>
+            <input type="radio" name="leave_type" value="Death of Immediate Family Members"> Death of Immediate Family Members<br>
+            <input type="radio" name="leave_type" value="Disaster (Flood/Fire)"> Disaster (Flood/Fire)<br>
+          </div>
+
+          <div class="col-md-4">
+            <strong>Others</strong><br>
+            <input type="radio" name="leave_type" value="Leave-in-Lieu"> Leave-in-Lieu<br>
+            <input type="radio" name="leave_type" value="Unpaid Leave"> Unpaid Leave<br>
+            <input type="radio" name="leave_type" value="Maternity/Paternity"> Maternity / Paternity<br>
+          </div>
+
+          <!-- Reason -->
+          <div class="col-12 mt-2">
+            <label class="form-label">Specify Reason</label>
+            <textarea class="form-control" name="reason" rows="2"></textarea>
+          </div>
+
+          <!-- Contact Address -->
+          <div class="col-md-9">
+            <label class="form-label">Contact Address During Leave</label>
+            <input type="text" class="form-control" name="contact_address" required>
+          </div>
+
+          <!-- Phone -->
+          <div class="col-md-3">
+            <label class="form-label">Phone Number</label>
+            <input type="text" class="form-control" name="contact_phone" required>
+          </div>
+
+          <!-- Supporting Document -->
+          <div class="col-12">
+            <label class="form-label">Supporting Document (Optional)</label>
+            <input type="file" class="form-control" name="support_doc" accept=".png,.jpg,.jpeg,.pdf">
+          </div>
+
+          <!-- Buttons -->
+          <div class="col-12 d-flex justify-content-end mt-3">
+            <a href="{{ url_for('user_dashboard') }}" class="btn btn-outline-light">Cancel</a>
+            <button class="btn btn-primary">Submit</button>
+          </div>
+
+        </form>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

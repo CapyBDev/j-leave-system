@@ -1,0 +1,116 @@
+:root{
+  --glass-bg: rgba(67, 192, 159, 0.08);
+  --glass-brd: rgba(119, 255, 244, 0.815);
+}
+.bg-gradient{
+  min-height: 100vh;
+  background: linear-gradient(135deg, #22ff68 0%, #75ff68 50%, #9effa6 100%);
+  position: relative;
+  overflow-x: hidden;
+}
+.bg-image{
+  position: fixed;
+  inset: 0;
+  background-image: url("DJI_0131.JPG");
+  background-size: cover;
+  background-position: center;
+  opacity: 0.6;
+  pointer-events: none;
+  filter: saturate(1.0) blur(0.5px);
+}
+.glass-nav{
+  background: linear-gradient(to bottom, rgba(84, 235, 255, 0.35), rgba(47, 241, 241, 0.1));
+  backdrop-filter: blur(8px);
+}
+.glass-card, .stat-card{
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-brd);
+  backdrop-filter: blur(8px);
+  color: hsl(0, 0%, 100%);
+}
+.logo { width: 120px; height: 50px; border-radius: 8px; object-fit: cover; }
+.logo-lg { width: 197px; height: 98px; border-radius: 12px; }
+
+.table{ color:#fff; }
+.table thead th{ color:#00254d; background: #cce2ff; }
+.table tbody td, .table thead th{ vertical-align: middle; }
+
+.card{ border-radius: 1rem; }
+.btn{ border-radius: .75rem; }
+.navbar .nav-link{ color: #7baaf5; }
+.navbar .nav-link.active, .navbar .nav-link:hover{ color: #fff; }
+.toast{ box-shadow: 0 6px 16px rgba(0,0,0,0.15); }
+.form-control, .form-select{
+  background: rgba(255,255,255,0.9);
+}
+
+/* === Custom font and color === */
+body {
+  font-family: "Poppins", sans-serif;
+  color: #267cdf;
+}
+
+h1, h2, h3, h4 {
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.navbar .nav-link {
+  color: #ffffff;
+  font-size: 1rem;
+}
+
+.btn {
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+h5 {
+  color: #ebfcff;
+  font-weight: 600;
+}
+
+.form-label {
+  font-style: bold;  /* makes the label text italic */
+  font-weight: 500;
+}
+@page {
+  size: A4 landscape;
+  margin: 10mm;
+}
+
+table th, table td {
+  font-size: 14px;
+  padding: 4px;
+  white-space: nowrap;
+}
+
+#leaveTypeTitle {
+  color: #2f3e46;        /* softer dark slate */
+  font-weight: 600;
+  letter-spacing: 0.2px;
+}
+.note-approved {
+  background-color: #e8f7ee;   /* soft green */
+  color: #1e7e34;
+  padding: 6px 12px;
+  border-radius: 8px;
+  border-left: 4px solid #28a745;
+  font-weight: 500;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.note-mc {
+  background-color: #fdeaea;   /* soft red/pink */
+  color: #842029;
+  padding: 6px 12px;
+  border-radius: 8px;
+  border-left: 4px solid #dc3545;
+  font-weight: 500;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+
+
+
+
